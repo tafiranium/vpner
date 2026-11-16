@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Журнал запросов — VPN Aggregator{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="card-head">
+    <h1>Журнал запросов <span class="counter">{{ entries|length }}</span></h1>
+    <a class="btn btn-ghost" href="{{ url_for('keys_page') }}">Последние ключи</a>
+  </div>
+  <p class="muted">Последние 10 обращений клиентов к /sub/&lt;token&gt; (и алиасу /s/&lt;token&gt;).
+    OK — все источники ответили; Частично — ключи отданы, но часть источников
+    с ошибками или заглушками; Ошибка — запрос не удался (текст ошибки в
+    последней колонке). HWID — идентификатор устройства из заголовка x-hwid.</p>
+
+  {% if entries %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Время (UTC)</th>
+          <th>IP</th>
+          <th>HWID</th>
+          <th>Клиент (User-Agent)</th>
+          <th>Результат</th>
+          <th>Ключей</th>
+          <th>Ошибка</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in entries %}
+        <tr>
+          <td class="muted">{{ e.created_at.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+          <td class="mono-dark">{{ e.ip_address }}</td>
+          <td class="mono-dark">{{ e.hwid or '—' }}</td>
+          <td><span class="mono">{{ e.user_agent or '—' }}</span></td>
+          <td>
+            {% if e.success and not e.error_text %}
+              <span class="badge badge-ok">OK</span>
+            {% elif e.success %}
+              <span class="badge badge-warn">Частично</span>
+            {% else %}
+              <span class="badge badge-err">Ошибка</span>
+            {% endif %}
+          </td>
+          <td>{{ e.keys_count if e.keys_count is not none else '—' }}</td>
+          <td>{% if e.error_text %}<span class="error-text">{{ e.error_text }}</span>{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty">Запросов ещё не было. Как только Happ (или curl) обратится к
+    ссылке подписки, запрос появится здесь — вместе с ошибками, если они будут.</p>
+  {% endif %}
+</section>
+{% endblock %}

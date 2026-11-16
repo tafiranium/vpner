@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Вход — VPN Aggregator{% endblock %}
+{% block content %}
+<section class="card auth-card">
+  <h1>Вход в панель</h1>
+  <p class="muted">Введите логин и пароль администратора. После 5 неудачных попыток
+    вход с этого IP блокируется на 15 минут.</p>
+  <form method="post" action="{{ url_for('login') }}" autocomplete="off">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label for="username">Логин</label>
+    <input id="username" name="username" type="text" required maxlength="64" autofocus>
+    <label for="password">Пароль</label>
+    <input id="password" name="password" type="password" required>
+    <button type="submit" class="btn btn-primary btn-block">Войти</button>
+  </form>
+</section>
+{% endblock %}

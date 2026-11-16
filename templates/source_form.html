@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование источника' if source else 'Новый источник' }} — VPN Aggregator{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>{{ 'Редактировать источник' if source else 'Добавить источник' }}</h1>
+  <p class="muted">URL подписки провайдера (Base64 или plain-text). При сохранении URL
+    проверяется: схема http/https, отсутствие внутренних адресов (SSRF), DNS-резолв.</p>
+  <form method="post" action="{{ action_url }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+
+    <label for="name">Название</label>
+    <input id="name" name="name" type="text" maxlength="100" required
+           value="{{ form.get('name', '') }}" placeholder="Например: Основной провайдер">
+
+    <label for="url">URL подписки</label>
+    <input id="url" name="url" type="url" maxlength="2048" required
+           value="{{ form.get('url', '') }}" placeholder="https://provider.example/api/sub?token=...">
+
+    <label class="checkbox-row">
+      <input type="checkbox" name="is_active" {{ 'checked' if form.get('is_active') else '' }}>
+      Активен (участвует в агрегации для Happ)
+    </label>
+
+    <label class="checkbox-row">
+      <input type="checkbox" name="forward_headers" {{ 'checked' if form.get('forward_headers') else '' }}>
+      Пересылать источнику настоящие заголовки клиента Happ (x-hwid,
+      x-device-os, User-Agent…). Нужно «персональным» источникам, привязанным
+      к устройству. Заголовки без этой галочки не пересылаются: запрос всё
+      равно маскируется под Happ (анти-DDoS источников отвечает 403 иначе).
+    </label>
+
+    <label class="checkbox-row">
+      <input type="checkbox" name="filter_stubs" {{ 'checked' if form.get('filter_stubs') else '' }}>
+      Удалять ключи-заглушки («Включите отправку HWID…», хост 0.0.0.0 и т.п.)
+    </label>
+
+    <div class="btn-group">
+      <button type="submit" class="btn btn-primary">Сохранить</button>
+      <a class="btn btn-ghost" href="{{ url_for('dashboard') }}">Отмена</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
